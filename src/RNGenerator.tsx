@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import NumberSlot from "./assets/NumberSlot";
 import generateInRange from "./assets/generateInRange";
 import generateInRangeBias from "./assets/generateInRangeBias";
+import FancyButton from "./assets/FancyButton";
+import { useLocation } from "react-router-dom";
 
-function App() {
+function RNGenerator() {
 	const initialNumberOfSlots = 3;
 	const [numberOfSlots, setNumberOfSlots] = useState(initialNumberOfSlots);
 	const [arrayofNumbers, setArrayOfNumbers] = useState<number[] | string[]>(
@@ -14,16 +16,22 @@ function App() {
 		min: 1,
 		max: 30,
 	});
+	const [fakeNumbers, setFakeNumbers] = useState<number[]>(new Array(0));
+	const locationObject = useLocation();
 
 	useEffect(() => {
 		setArrayOfNumbers(Array.from({ length: numberOfSlots }, () => "-"));
 		setRandomCount(0);
 	}, [numberOfSlots]);
 
+	useEffect(() => {
+		locationObject && setFakeNumbers(locationObject?.state?.fakeNumbers);
+	}, [location]);
+
 	function generateRandomNumbers() {
 		let randomNumberArray =
-			randomCount === 3
-				? generateInRangeBias(rngLimit.min, rngLimit.max, numberOfSlots, [2, 11])
+			randomCount === 3 && fakeNumbers
+				? generateInRangeBias(rngLimit.min, rngLimit.max, numberOfSlots, fakeNumbers)
 				: generateInRange(rngLimit.min, rngLimit.max, numberOfSlots);
 		setArrayOfNumbers(randomNumberArray);
 		setRandomCount((prevCount) => prevCount + 1);
@@ -46,6 +54,9 @@ function App() {
 
 	return (
 		<>
+			{fakeNumbers && fakeNumbers.length != 0 && (
+				<div className='absolute top-0 left-o w-4 h-4 bg-slate-300'></div>
+			)}
 			<h1 className='mx-auto py-8 lg:text-5xl md:text-3xl text-xl font-semibold text-white text-center'>
 				Random Number Generator
 			</h1>
@@ -57,7 +68,7 @@ function App() {
 						type='number'
 						placeholder='3'
 						aria-label='number of slots'
-						value={numberOfSlots}
+						value={numberOfSlots || ""}
 						onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 							setNumberOfSlots(e.target.valueAsNumber);
 						}}
@@ -71,7 +82,7 @@ function App() {
 						id='min'
 						placeholder='3'
 						aria-label='Min. Zahl:'
-						value={rngLimit.min}
+						value={rngLimit.min || ""}
 						onChange={(e) => {
 							handleLimitChange(e);
 						}}
@@ -85,7 +96,7 @@ function App() {
 						id='max'
 						placeholder='3'
 						aria-label='Max. Zahl:'
-						value={rngLimit.max}
+						value={rngLimit.max || ""}
 						onChange={(e) => {
 							handleLimitChange(e);
 						}}
@@ -93,25 +104,16 @@ function App() {
 				</div>
 			</form>
 			<div className='w-full px-4 flex justify-center flex-wrap'>
-				{arrayofNumbers?.map((num) => {
-					return <NumberSlot value={num} />;
+				{arrayofNumbers?.map((num, idx) => {
+					return <NumberSlot key={idx} value={num} />;
 				})}
 			</div>
-			<div
-				className='w-full h-40 flex items-center justify-center'
-				onClick={() => generateRandomNumbers()}
-			>
-				<a
-					href='#_'
-					className='relative inline-flex items-center justify-center px-10 py-4 overflow-hidden font-mono font-medium tracking-tighter text-white bg-gray-800 rounded-lg group'
-				>
-					<span className='absolute w-0 h-0 transition-all duration-500 ease-out bg-cyan-500 rounded-full group-hover:w-80 group-hover:h-56'></span>
-					<span className='absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-gray-700'></span>
-					<span className='relative'>Generiere Zufallszahlen</span>
-				</a>
-			</div>
+			<FancyButton
+				title='Generiere Zufallszahlen'
+				onClickFunction={() => generateRandomNumbers()}
+			/>
 		</>
 	);
 }
 
-export default App;
+export default RNGenerator;

@@ -9,7 +9,7 @@ export default function generateInRangeBias(
 	}
 
 	if (count < existingNumbers.length) {
-		throw new Error("Count is smaller than the number of existing numbers");
+		existingNumbers = existingNumbers.slice(0, count);
 	}
 
 	const range = max - min + 1;
