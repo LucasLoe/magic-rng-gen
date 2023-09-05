@@ -23,8 +23,8 @@ function App() {
 	function generateRandomNumbers() {
 		let randomNumberArray =
 			randomCount === 3
-				? generateInRangeBias(1, 30, numberOfSlots, [2, 11])
-				: generateInRange(1, 30, numberOfSlots);
+				? generateInRangeBias(rngLimit.min, rngLimit.max, numberOfSlots, [2, 11])
+				: generateInRange(rngLimit.min, rngLimit.max, numberOfSlots);
 		setArrayOfNumbers(randomNumberArray);
 		setRandomCount((prevCount) => prevCount + 1);
 	}
