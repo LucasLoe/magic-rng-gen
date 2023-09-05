@@ -3,6 +3,10 @@ import FancyButton from "./assets/FancyButton";
 import { useNavigate } from "react-router-dom";
 import NumberSlot from "./assets/NumberSlot";
 
+type DeleteButtonProps = {
+	action: () => void;
+};
+
 const SecretSettings = () => {
 	const [fakeNumbers, setFakeNumbers] = useState<number[]>([]);
 	const [currentNumber, setCurrentNumber] = useState<number>(0);
@@ -13,6 +17,18 @@ const SecretSettings = () => {
 		navigate("/", { state: { fakeNumbers: fakeNumbers } });
 	}
 
+	function handleDeleteNumberByIndex(idx: number) {
+		const newFakeNumbers = [...fakeNumbers];
+		newFakeNumbers.splice(idx, 1);
+		setFakeNumbers(newFakeNumbers);
+	}
+
+	function handleKeyDown(e: React.KeyboardEvent) {
+		if (e.key === "Enter") {
+			addNumber();
+		}
+	}
+
 	function addNumber() {
 		const newFakeNumbers = [...fakeNumbers, currentNumber];
 		if (currentNumber) {
@@ -21,9 +37,20 @@ const SecretSettings = () => {
 		}
 	}
 
+	const DeleteButton = (props: DeleteButtonProps) => {
+		return (
+			<button
+				className='rounded bg-red-500 hover:outline hover:outline-2 hover:outline-slate-800  w-6 h-6 text-sm text-white absolute -top-3 -right-3 p-1 text-center flex justify-center items-center shadow-xl'
+				onClick={() => props.action()}
+			>
+				{"X"}
+			</button>
+		);
+	};
+
 	return (
 		<>
-			<h1 className='mx-auto py-8 lg:text-5xl md:text-3xl text-xl font-semibold text-red-300 text-center'>
+			<h1 className='mx-auto py-8 lg:text-5xl md:text-3xl text-2xl font-semibold text-red-500 text-center'>
 				SECRET SETTINGS
 			</h1>
 			<div className='mx-auto w-32 flex flex-row py-4 items-center justify-between'>
@@ -37,6 +64,7 @@ const SecretSettings = () => {
 					onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
 						setCurrentNumber(e.target.valueAsNumber);
 					}}
+					onKeyDown={(e) => handleKeyDown(e)}
 				/>
 				<button
 					className='bg-gray-800 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded text-sm'
@@ -45,14 +73,18 @@ const SecretSettings = () => {
 					Hinzufügen
 				</button>
 			</div>
-			<div className='w-full px-4 flex justify-center flex-wrap bg-red-800'>
+			<div className='w-full px-4 flex justify-center flex-wrap bg-red-900'>
 				{fakeNumbers.length != 0 && (
 					<p className='text-lg text-white font-extrabold w-full text-center py-4 tracking-wider'>
 						Hinzugefügte Zahlen:
 					</p>
 				)}
 				{fakeNumbers?.map((num, idx) => {
-					return <NumberSlot key={idx} value={num} />;
+					return (
+						<NumberSlot key={idx} value={num}>
+							<DeleteButton action={() => handleDeleteNumberByIndex(idx)} />
+						</NumberSlot>
+					);
 				})}
 			</div>
 			<FancyButton title='Speichern und Fortfahren' onClickFunction={() => handleSubmit()} />
